@@ -5,16 +5,31 @@ using Northwind.Application.Customers.Queries.GetCustomerDetail;
 using Northwind.Application.Customers.Commands.UpdateCustomer;
 using Northwind.Application.Customers.Commands.CreateCustomer;
 using Northwind.Application.Customers.Commands.DeleteCustomer;
+using MassTransit;
 
 namespace Northwind.WebUI.Controllers
 {
     public class CustomersController : BaseController
     {
+        private readonly IBus _bus;
+
+        public CustomersController(IBusControl bus)
+        {
+            _bus = bus;
+        }
+
         // GET api/customers
         [HttpGet]
         public async Task<ActionResult<CustomersListViewModel>> GetAll()
         {
             return Ok(await Mediator.Send(new GetCustomersListQuery()));
+        }
+
+
+        public async Task<IActionResult> Send()
+        {
+
+            return Ok();
         }
 
         // GET api/customers/5

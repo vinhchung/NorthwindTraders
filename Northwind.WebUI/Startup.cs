@@ -1,4 +1,6 @@
 using FluentValidation.AspNetCore;
+using MassTransit;
+using MassTransit.Util;
 using MediatR;
 using MediatR.Pipeline;
 using Microsoft.AspNetCore.Builder;
@@ -30,6 +32,16 @@ namespace Northwind.WebUI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IBusControl>(service =>
+            {
+                return Bus.Factory.CreateUsingRabbitMq(sbc =>
+                sbc.Host("localhost", "", h =>
+                    {
+                        h.Username("guest");
+                        h.Password("guest");
+                    }));
+            });
+
             // Add framework services.
             // Add MediatR
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>));
@@ -61,7 +73,7 @@ namespace Northwind.WebUI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime lifetime)
         {
             if (env.IsDevelopment())
             {
@@ -103,6 +115,11 @@ namespace Northwind.WebUI
                     spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
                 }
             });
+
+            var bus = app.ApplicationServices.GetService<IBusControl>();
+            var busHandle = TaskUtil.Await(() => bus.StartAsync());
+
+            lifetime.ApplicationStopping.Register(() => busHandle.Stop());
         }
     }
 }
