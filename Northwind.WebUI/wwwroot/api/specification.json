@@ -128,7 +128,7 @@
       }
     },
     "/api/Customers/Send": {
-      "undefined": {
+      "get": {
         "tags": [
           "Customers"
         ],

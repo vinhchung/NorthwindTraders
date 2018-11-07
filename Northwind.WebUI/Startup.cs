@@ -16,6 +16,7 @@ using Northwind.Application.Products.Queries.GetProduct;
 using Northwind.Persistence;
 using Northwind.WebUI.Filters;
 using NSwag.AspNetCore;
+using System;
 using System.Reflection;
 
 namespace Northwind.WebUI
@@ -35,7 +36,7 @@ namespace Northwind.WebUI
             services.AddSingleton<IBusControl>(service =>
             {
                 return Bus.Factory.CreateUsingRabbitMq(sbc =>
-                sbc.Host("localhost", "", h =>
+                sbc.Host(new Uri("rabbitmq://localhost/"), h =>
                     {
                         h.Username("guest");
                         h.Password("guest");

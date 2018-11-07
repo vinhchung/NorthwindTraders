@@ -6,12 +6,14 @@ using Northwind.Application.Customers.Commands.UpdateCustomer;
 using Northwind.Application.Customers.Commands.CreateCustomer;
 using Northwind.Application.Customers.Commands.DeleteCustomer;
 using MassTransit;
+using Northwind.Application.Messages;
+using System;
 
 namespace Northwind.WebUI.Controllers
 {
     public class CustomersController : BaseController
     {
-        private readonly IBus _bus;
+        private readonly IBusControl _bus;
 
         public CustomersController(IBusControl bus)
         {
@@ -25,11 +27,16 @@ namespace Northwind.WebUI.Controllers
             return Ok(await Mediator.Send(new GetCustomersListQuery()));
         }
 
-
+        [HttpGet]
         public async Task<IActionResult> Send()
         {
-            
-            return Ok();
+            await _bus.StartAsync();
+            await _bus.Publish<IMessage>(new
+            {
+                Text = "hello",
+                Created = DateTime.UtcNow,
+            });
+            return Ok("Message sent");
         }
 
         // GET api/customers/5

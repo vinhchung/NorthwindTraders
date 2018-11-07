@@ -288,7 +288,7 @@ export class CustomersClient implements ICustomersClient {
             })
         };
 
-        return this.http.request("undefined", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processSend(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
