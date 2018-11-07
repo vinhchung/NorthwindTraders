@@ -14,6 +14,7 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface IAdminClient {
+    hello(): Observable<FileResponse | null>;
     employeeManagerReport(): Observable<EmployeeManagerModel[] | null>;
     changeEmployeeManager(command: ChangeEmployeesManagerCommand): Observable<FileResponse | null>;
 }
@@ -27,6 +28,53 @@ export class AdminClient implements IAdminClient {
     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
         this.http = http;
         this.baseUrl = baseUrl ? baseUrl : "";
+    }
+
+    hello(): Observable<FileResponse | null> {
+        let url_ = this.baseUrl + "/api/Admin/Hello";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processHello(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processHello(<any>response_);
+                } catch (e) {
+                    return <Observable<FileResponse | null>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<FileResponse | null>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processHello(response: HttpResponseBase): Observable<FileResponse | null> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            return _observableOf({ fileName: fileName, data: <any>responseBlob, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<FileResponse | null>(<any>null);
     }
 
     employeeManagerReport(): Observable<EmployeeManagerModel[] | null> {

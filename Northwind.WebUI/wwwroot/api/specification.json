@@ -17,6 +17,27 @@
     "text/json"
   ],
   "paths": {
+    "/api/Admin/Hello": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "Admin_Hello",
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Admin/EmployeeManagerReport": {
       "get": {
         "tags": [
