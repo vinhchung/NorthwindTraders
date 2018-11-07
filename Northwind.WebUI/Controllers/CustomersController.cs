@@ -28,7 +28,7 @@ namespace Northwind.WebUI.Controllers
 
         public async Task<IActionResult> Send()
         {
-
+            
             return Ok();
         }
 
