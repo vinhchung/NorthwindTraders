@@ -14,7 +14,7 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface IAdminClient {
-    hello(): Observable<FileResponse | null>;
+    hello(msg: string | null | undefined): Observable<FileResponse | null>;
     employeeManagerReport(): Observable<EmployeeManagerModel[] | null>;
     changeEmployeeManager(command: ChangeEmployeesManagerCommand): Observable<FileResponse | null>;
 }
@@ -30,8 +30,10 @@ export class AdminClient implements IAdminClient {
         this.baseUrl = baseUrl ? baseUrl : "";
     }
 
-    hello(): Observable<FileResponse | null> {
-        let url_ = this.baseUrl + "/api/Admin/Hello";
+    hello(msg: string | null | undefined): Observable<FileResponse | null> {
+        let url_ = this.baseUrl + "/api/Admin/Hello?";
+        if (msg !== undefined)
+            url_ += "msg=" + encodeURIComponent("" + msg) + "&"; 
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {

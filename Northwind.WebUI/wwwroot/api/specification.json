@@ -23,6 +23,14 @@
           "Admin"
         ],
         "operationId": "Admin_Hello",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "msg",
+            "in": "query",
+            "nullable": true
+          }
+        ],
         "responses": {
           "200": {
             "x-nullable": true,

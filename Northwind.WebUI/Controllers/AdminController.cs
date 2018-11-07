@@ -12,28 +12,29 @@ namespace Northwind.WebUI.Controllers
     public class AdminController : BaseController
     {
         [HttpGet]
-        public async Task<IActionResult> Hello()
+        public async Task<IActionResult> Hello(string msg)
         {
             var factory = new ConnectionFactory() { HostName = "localhost" };
             using (var connection = factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare(queue: "hello",
-                                 durable: false,
+                    channel.QueueDeclare(queue: "task_queue",
+                                 durable: true,
                                  exclusive: false,
                                  autoDelete: false,
                                  arguments: null);
 
-                    string message = "Hello World!";
-                    var body = Encoding.UTF8.GetBytes(message);
+                    var body = Encoding.UTF8.GetBytes(msg);
+                    var properties = channel.CreateBasicProperties();
+                    properties.Persistent = true;
 
                     await Task.Run(() => channel.BasicPublish(exchange: "",
-                                         routingKey: "hello",
-                                         basicProperties: null,
+                                         routingKey: "task_queue",
+                                         basicProperties: properties,
                                          body: body));
 
-                    return Ok($"[x] Sent {message}");
+                    return Ok($"[x] Sent {msg}");
                 }
             }
         }
