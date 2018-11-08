@@ -19,10 +19,23 @@ namespace Northwind
                     {
                         ep.Handler<IMessage>(context =>
                         {
-                            return Console.Out.WriteLineAsync($"Received: {context.Message.Text}");
+                            return Console.Out.WriteLineAsync($"Message ep 1 Received: {context.Message.Text}");
                         });
                     });
-             });
+
+                sbc.ReceiveEndpoint(host, "test_queue2", ep =>
+                {
+                    ep.Handler<IMessage>(context =>
+                    {
+                        return Console.Out.WriteLineAsync($"Message ep 2 Received: {context.Message.Text}");
+                    });
+
+                    ep.Handler<IFile>(context =>
+                    {
+                        return Console.Out.WriteLineAsync($"Fle ep 2 Received: {context.Message.Name}");
+                    });
+                });
+            });
             bus.Start();
             Console.ReadLine();
         }

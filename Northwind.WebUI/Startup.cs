@@ -15,6 +15,7 @@ using Northwind.Application.Infrastructure;
 using Northwind.Application.Products.Queries.GetProduct;
 using Northwind.Persistence;
 using Northwind.WebUI.Filters;
+using Northwind.WebUI.Infrastructure;
 using NSwag.AspNetCore;
 using System;
 using System.Reflection;
@@ -33,6 +34,7 @@ namespace Northwind.WebUI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, MassTransitHostedService>();
             services.AddSingleton<IBusControl>(service =>
             {
                 return Bus.Factory.CreateUsingRabbitMq(sbc =>
@@ -117,10 +119,6 @@ namespace Northwind.WebUI
                 }
             });
 
-            var bus = app.ApplicationServices.GetService<IBusControl>();
-            var busHandle = TaskUtil.Await(() => bus.StartAsync());
-
-            lifetime.ApplicationStopping.Register(() => busHandle.Stop());
         }
     }
 }

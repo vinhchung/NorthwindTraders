@@ -30,13 +30,22 @@ namespace Northwind.WebUI.Controllers
         [HttpGet]
         public async Task<IActionResult> Send()
         {
-            await _bus.StartAsync();
             await _bus.Publish<IMessage>(new
             {
                 Text = "hello",
                 Created = DateTime.UtcNow,
             });
             return Ok("Message sent");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SendFile()
+        {
+            await _bus.Publish<IFile>(new
+            {
+                Name = "File.pdf"
+            });
+            return Ok("File sent");
         }
 
         // GET api/customers/5

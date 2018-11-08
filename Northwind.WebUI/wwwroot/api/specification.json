@@ -148,6 +148,27 @@
         }
       }
     },
+    "/api/Customers/SendFile": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "operationId": "Customers_SendFile",
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Customers/Get/{id}": {
       "get": {
         "tags": [
