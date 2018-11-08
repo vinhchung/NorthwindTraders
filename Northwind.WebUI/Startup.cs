@@ -31,19 +31,23 @@ namespace Northwind.WebUI
 
         public IConfiguration Configuration { get; }
 
+        private IBusControl ConfigureMassTransitRabbitMq()
+        {
+            return Bus.Factory.CreateUsingRabbitMq(sbc =>
+                sbc.Host(new Uri("rabbitmq://localhost/"), h =>
+                {
+                    h.Username("guest");
+                    h.Password("guest");
+                }));
+        }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, MassTransitHostedService>();
-            services.AddSingleton<IBusControl>(service =>
-            {
-                return Bus.Factory.CreateUsingRabbitMq(sbc =>
-                sbc.Host(new Uri("rabbitmq://localhost/"), h =>
-                    {
-                        h.Username("guest");
-                        h.Password("guest");
-                    }));
-            });
+            var _bus = ConfigureMassTransitRabbitMq();
+            services.AddSingleton<IBusControl>(_bus);
+            services.AddSingleton<IPublishEndpoint>(_bus);
 
             // Add framework services.
             // Add MediatR

@@ -13,9 +13,9 @@ namespace Northwind.WebUI.Controllers
 {
     public class CustomersController : BaseController
     {
-        private readonly IBusControl _bus;
+        private readonly IPublishEndpoint _bus;
 
-        public CustomersController(IBusControl bus)
+        public CustomersController(IPublishEndpoint bus)
         {
             _bus = bus;
         }
